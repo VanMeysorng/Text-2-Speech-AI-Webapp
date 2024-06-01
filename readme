@@ -1,0 +1,7 @@
+# Text to Speech Converter
+
+- This tool converts text into speech. 
+- It supports both direct text input and file upload (TXT, PDF, or DOCX). 
+- Users can adjust the language and speech speed. 
+- The converted speech is played back as an audio file. 
+
