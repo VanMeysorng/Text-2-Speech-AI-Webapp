@@ -1,4 +1,3 @@
-
 import streamlit as st
 from gtts import gTTS
 from io import BytesIO
@@ -39,7 +38,7 @@ def text_to_speech(text, language='en', slow=False):
         return None
 
 # Streamlit interface
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide")  # Should be at the beginning
 st.title("Text to Speech Conversion")
 st.markdown("---")
 
@@ -48,6 +47,7 @@ st.sidebar.header("Input Options")
 
 input_option = st.sidebar.radio("Choose Input Option", ("Text Input", "File Upload"))
 
+user_text = ""
 if input_option == "Text Input":
     st.subheader("Enter Text")
     user_text = st.text_area("", height=300)
@@ -61,13 +61,25 @@ else:
             user_text = extract_text_from_pdf(uploaded_file)
         elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             user_text = extract_text_from_docx(uploaded_file)
-        st.write("**File Content:**")
-        st.write(user_text)
+        
+        if user_text:
+            st.write("**File Content:**")
+            st.write(user_text)
+        else:
+            st.warning("Could not extract text from the uploaded file.")
 
 # Right column for settings
 st.sidebar.header("Settings")
 
-language = st.sidebar.selectbox("Select Language", ['English', 'Khmer', 'Spanish', 'French', 'German'])
+language_map = {
+    'English': 'en',
+    'Khmer': 'km',
+    'Spanish': 'es',
+    'French': 'fr',
+    'German': 'de'
+}
+language = st.sidebar.selectbox("Select Language", list(language_map.keys()))
+language_code = language_map[language]
 speech_speed = st.sidebar.slider("Adjust Speech Speed", min_value=0.5, max_value=2.0, value=1.0, step=0.1)
 
 # Convert speed to boolean for gTTS
@@ -76,7 +88,7 @@ slow_speed = speech_speed < 0.75  # slower speed if below 0.75
 # Convert to speech button
 if st.button("Convert to Speech", key="convert_button"):
     if user_text:
-        tts = text_to_speech(user_text, language.lower(), slow=slow_speed)
+        tts = text_to_speech(user_text, language_code, slow=slow_speed)
         if tts:
             audio_file = BytesIO()
             tts.write_to_fp(audio_file)
